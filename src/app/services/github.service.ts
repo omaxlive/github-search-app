@@ -19,6 +19,7 @@ export class GithubService {
   private api_version = 'application/vnd.github.v3+json';
   private params = `?client_id=${this.client_id}&client_secret=${this.client_secret}`;
   private newInputSubject = new Subject<any>();
+  private httpHeaders = { 'Accept': this.api_version };
 
   constructor(private http: HttpClient, private dataService: DataService) {
     console.log('github service init');
@@ -27,12 +28,12 @@ export class GithubService {
   getUser(username: string): Observable<GithubUserInterface> {
     this.dataService.activeUser = username;
     return this.http.get<GithubUserInterface>(`${this.github_url}/users/${username}${this.params}`,
-      { headers: { 'Accept': this.api_version } });
+      { headers: this.httpHeaders });
   }
 
   getUsersByUsername(username: string): Observable<Array<GithubUserInterface>> {
     return this.http.get<any>(`${this.github_url}/search/users?q=${username}&type=Users${this.params}`,
-      { headers: { 'Accept': this.api_version } })
+      { headers: this.httpHeaders })
       .pipe(
         map(result => result.items),
         catchError(this.handleError<GithubUserInterface[]>('getUsersByUsername', []))
@@ -41,7 +42,7 @@ export class GithubService {
 
   getRepos(username: string): Observable<Array<Object>> {
     return this.http.get<Array<Object>>(`${this.github_url}/users/${username}/repos${this.params}`,
-      { headers: { 'Accept': this.api_version } })
+      { headers: this.httpHeaders })
       .pipe(
         catchError(this.handleError<Object[]>('getRepos', []))
       );
@@ -49,7 +50,7 @@ export class GithubService {
 
   getFollowers(username: string): Observable<Array<GithubUserInterface>> {
     return this.http.get<Array<GithubUserInterface>>(`${this.github_url}/users/${username}/followers${this.params}`,
-      { headers: { 'Accept': this.api_version } })
+      { headers: this.httpHeaders })
       .pipe(
         catchError(this.handleError<GithubUserInterface[]>('getFollowers', []))
       );
